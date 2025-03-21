@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Wikipedia</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+            background-color: #ffffff;
+        }
+
+        .quiz-container {
+            max-width: 600px;
+            margin: auto;
+            background: #FFFFFF;
+            padding: 20px;
+            border-radius: 0px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            font-size: 20px;
+            margin-bottom: 20px;
+            background: #4682B4;
+            padding: 15px;
+            border-radius: 0px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .answers button,
+        .answers input {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 0px;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 16px;
+            background: #87CEEB;
+            color: black;
+            font-weight: bold;
+        }
+
+        .answers button:hover {
+            background: #5F9EA0;
+            transform: scale(1.05);
+        }
+
+        .correct {
+            background-color: #4CAF50 !important;
+            color: white;
+        }
+
+        .incorrect {
+            background-color: #F44336 !important;
+            color: white;
+        }
+
+        #result {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #explanation {
+            display: none;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        #restart {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            background: #4682B4;
+            color: white;
+            border: none;
+            border-radius: 0px;
+            font-weight: bold;
+        }
+
+        #nextQuestion {
+            display: none;
+            padding: 15px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 0px;
+            background-color: #4682B4;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .answers input {
+            text-align: center;
+            /* Wyśrodkowanie tekstu w polu */
+        }
+
+        #nextQuestion:hover {
+            background-color: #5A9FCF;
+            /* Jaśniejszy kolor po najechaniu */
+            transform: scale(1.05);
+            /* Efekt lekkiego powiększenia */
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            /* Wyśrodkowanie poziome */
+            margin-top: 20px;
+            /* Odstęp od quizu */
+        }
+
+        .quiz-logo {
+            width: 100px;
+            /* Zmniejszenie logo */
+            height: auto;
+            /* Zachowanie proporcji */
+            opacity: 0.8;
+            /* Lekka przezroczystość (opcjonalnie) */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container">
+        <div class="quiz-container">
+            <div class="logo-container">
+                <img src="https://i.postimg.cc/T3gtsw3G/temp-Image-F8l3-Dd.avif" alt="Hi-story Lessons Logo" class="quiz-logo">
+            </div>
+            <h2>Sprawdź swoją wiedzę o Wikipedii!</h2>
+
+            <p class="question" id="question">Ładowanie pytania...</p>
+            <div class="answers" id="answers"></div>
+            <p id="result"></p>
+            <p id="explanation"></p>
+            <button id="nextQuestion" style="display: none;" onclick="nextQuestion()">Następne pytanie</button>
+            <button id="restart" onclick="restartQuiz()">Zagraj ponownie</button>
+        </div>
+
+        <script>
+            const quizData = [{
+                    question: "Który z poniższych sporów na Wikipedii trwa od 2005 roku i dotyczy nazewnictwa miasta? Zaznacz prawidłową odpowiedź:",
+                    answers: ["Spór o Lwów/Lviv", "Spór o Gdańsk/Danzig", "Spór o Wilno/Vilnius", "Spór o Kaliningrad/Królewiec"],
+                    correct: 1,
+                    explanation: "Wojna edycyjna o Gdańsk rozpoczęła się w 2005 roku i dotyczyła wyboru odpowiedniej nazwy w anglojęzycznej Wikipedii."
+                },
+                {
+                    question: "Jaka była główna metoda stosowana przez rosyjskich edytorów do manipulowania artykułami o wojnie w Ukrainie? Zaznacz dwie poprawne odpowiedzi:",
+                    answers: ["Tworzenie krótkich, niskiej jakości artykułów", "Zmienianie nazw miejscowości na rosyjskie wersje", "Usuwanie źródeł z zachodnich mediów", "Dodawanie fałszywych map"],
+                    correct: [1, 3], // multiple correct answers (second and third answers)
+                    explanation: "Rosyjscy edytorzy stosowali m.in. zmiany nazw oraz publikowanie zmanipulowanych map."
+                },
+                {
+                    question: "Na czym polega strategia „wikiprawniczenia” (Wiki-lawyering)? Zaznacz prawidłową odpowiedź:",
+                    answers: ["Usuwanie niezgodnych z narracją źródeł", "Powtarzające się zgłaszanie niewygodnych treści", "Nadużywanie zasad Wikipedii do przeforsowania własnej wersji historii", "Tworzenie nowych artykułów tylko w wybranych językach"],
+                    correct: 2, // only one correct answer
+                    explanation: "Niektórzy edytorzy stosują „wikiprawniczenie”, powołując się na zasady neutralności, aby blokować niekorzystne informacje."
+                },
+                {
+                    question: "Dlaczego spór o nazwę Gdańska na anglojęzycznej Wikipedii jest tak istotny? Wpisz odpowiedź:",
+                    input: true,
+                    correct: "Danzig",
+                    explanation: "Danzig. Wyjaśnienie: Spór o nazwę miasta trwa od 2005 roku i jest przykładem \"wojny edycyjnej\" na Wikipedii."
+                },
+                {
+                    question: "Dlaczego kampania „KyivNotKiev” miała duże znaczenie? Wpisz odpowiedź:",
+                    input: true,
+                    correct: "Kiev",
+                    explanation: "Kiev. Wyjaśnienie: Akcja miała podkreślić podmiotowość Ukrainy, eliminując rosyjskie nazewnictwo."
+                },
+                {
+                    question: "Co odróżnia Wikipedię od tradycyjnych podręczników historycznych? Zaznacz prawidłową odpowiedź:",
+                    answers: ["Wikipedia nigdy się nie zmienia", "Wikipedia jest tworzona przez profesjonalnych historyków", "Wikipedia jest dynamiczna i może być edytowana przez każdego", "Wikipedia zawiera wyłącznie obiektywne treści"],
+                    correct: 2,
+                    explanation: "Wikipedia pozwala na bieżące aktualizacje, co może prowadzić zarówno do wzbogacenia treści, jak i manipulacji."
+                },
+                {
+                    question: "Która z poniższych metod NIE jest stosowana do badania manipulacji historycznych na Wikipedii? Zaznacz prawidłową odpowiedź:",
+                    answers: ["Analiza liczby edycji w danym haśle", "Analiza cytowanych źródeł i ich jakości", "Porównywanie artykułów w różnych językach", "Blokowanie kont edytorów bez podania powodu"],
+                    correct: 3,
+                    explanation: "Badania opierają się na analizie treści i aktywności edytorów, a nie arbitralnym blokowaniu kont."
+                },
+                {
+                    question: "Jakie są skutki świadomego podważania konsensusów historycznych na Wikipedii? Zaznacz właściwe skutki (dwa):",
+                    answers: ["Ułatwienie dostępu do wiedzy", "Powstawanie chaosu informacyjnego", "Lepsza jakość artykułów", "Wzrost dezinformacji i podziałów społecznych"],
+                    correct: [0, 3], // multiple correct answers (second and third answers)
+                    explanation: "Dezinformacja nie musi zmieniać historii – wystarczy, że wprowadza zamieszanie i utrudnia odbiorcom znalezienie rzetelnych informacji."
+                },
+                {
+                    question: "Jakie narzędzie Wikipedii pozwala sprawdzić popularność artykułu i liczbę jego edycji? Wpisz poprawną nazwę narzędzia:",
+                    input: true,
+                    correct: "PageViews",
+                    explanation: "PageViews. Wyjaśnienie: Narzędzie PageViews umożliwia analizę liczby odwiedzin i zmian w artykułach."
+                },
+                {
+                    question: "W jaki sposób Wikipedię można wykorzystać do badań nad pamięcią historyczną? Zaznacz dwie odpowiedzi:",
+                    answers: ["Analizując zmiany w treści artykułów na przestrzeni czasu", "Sprawdzając, jakie źródła są cytowane i czy są wiarygodne", "Porównując, jak to samo wydarzenie opisane jest w różnych wersjach językowych Wikipedii", "Sprawdzając komentarze użytkowników pod artykułami"],
+                    correct: [1, 2], // multiple correct answers (second and third answers)
+                    explanation: "Badania Wikipedii pozwalają śledzić, jak zmienia się narracja historyczna, jakie źródła są uznawane za wiarygodne oraz jak różne grupy interpretują te same wydarzenia."
+                },
+
+            ];
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let selectedAnswers = []; // Store selected answers for question 2
+
+            function checkAnswer(button, selectedIndex) {
+                const resultEl = document.getElementById("result");
+                const explanationEl = document.getElementById("explanation");
+                const nextButton = document.getElementById("nextQuestion"); // Pobieramy przycisk
+
+                // Ujawnienie wyjaśnienia po odpowiedzi
+                explanationEl.innerText = quizData[currentQuestionIndex].explanation;
+                explanationEl.style.display = "block";
+
+                if (Array.isArray(quizData[currentQuestionIndex].correct)) {
+                    // Pytanie wielokrotnego wyboru - pozwala na zaznaczenie dwóch odpowiedzi
+                    if (!selectedAnswers.includes(selectedIndex)) {
+                        selectedAnswers.push(selectedIndex);
+
+                        if (quizData[currentQuestionIndex].correct.includes(selectedIndex)) {
+                            button.classList.add("correct");
+                        } else {
+                            button.classList.add("incorrect"); // Błędne odpowiedzi na czerwono
+                        }
+                    }
+
+                    if (selectedAnswers.length === 2) { // Po zaznaczeniu dwóch odpowiedzi
+                        nextButton.style.display = "block"; // Pokazujemy przycisk "Następne pytanie"
+                    }
+                } else {
+                    // Pytania jednokrotnego wyboru
+                    if (selectedIndex === quizData[currentQuestionIndex].correct) {
+                        score++;
+                        resultEl.innerText = "Dobra odpowiedź!";
+                        button.classList.add("correct");
+                    } else {
+                        resultEl.innerText = "Zła odpowiedź.";
+                        button.classList.add("incorrect");
+                    }
+
+                    nextButton.style.display = "block"; // Pokazujemy przycisk "Następne pytanie"
+                }
+            }
+
+            function checkTextAnswer() {
+                const userInput = document.getElementById("userAnswer").value.trim();
+                const resultEl = document.getElementById("result");
+                const explanationEl = document.getElementById("explanation");
+                const nextButton = document.getElementById("nextQuestion"); // Pobieramy przycisk
+
+                explanationEl.innerText = quizData[currentQuestionIndex].explanation;
+                explanationEl.style.display = "block";
+                if (userInput.toLowerCase() === quizData[currentQuestionIndex].correct.toLowerCase()) {
+                    resultEl.innerText = "Sugerowana odpowiedź:";
+
+                } else {
+                    resultEl.innerText = "Sugerowana odpowiedź:";
+                }
+
+                nextButton.style.display = "block"; // Pokazujemy przycisk "Następne pytanie"
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                selectedAnswers = []; // Resetowanie wyborów
+                document.getElementById("nextQuestion").style.display = "none"; // Ukrywamy przycisk "Następne pytanie"
+
+                if (currentQuestionIndex < quizData.length) {
+                    loadQuestion();
+                } else {
+                    const totalClosedQuestions = quizData.filter(q => !q.input).length;
+                    document.getElementById("question").innerText = `Koniec quizu! Twój wynik: ${score}/${totalClosedQuestions}`;
+
+                    document.getElementById("answers").innerHTML = "";
+                    document.getElementById("result").innerText = "";
+                    document.getElementById("explanation").style.display = "none";
+                    document.getElementById("restart").style.display = "block";
+                }
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                selectedAnswers = []; // Clear selected answers
+                document.getElementById("restart").style.display = "none";
+                document.getElementById("result").innerText = "";
+                document.getElementById("explanation").style.display = "none";
+                loadQuestion();
+            }
+
+            function loadQuestion() {
+                const questionEl = document.getElementById("question");
+                const answersEl = document.getElementById("answers");
+                document.getElementById("result").innerText = "";
+                document.getElementById("explanation").style.display = "none";
+                answersEl.innerHTML = "";
+
+                const currentQuestion = quizData[currentQuestionIndex];
+                questionEl.innerText = currentQuestion.question;
+
+                if (currentQuestion.input) {
+                    const inputField = document.createElement("input");
+                    inputField.type = "text";
+                    inputField.id = "userAnswer";
+                    inputField.placeholder = "Wpisz odpowiedź";
+                    inputField.style.width = "50%"; // Ograniczenie szerokości
+                    inputField.style.maxWidth = "250px"; // Maksymalna szerokość pola
+                    inputField.style.display = "block"; // Ustawienie jako blokowy element
+                    inputField.style.margin = "0 auto"; // Wyśrodkowanie poziome
+
+                    const submitButton = document.createElement("button");
+                    submitButton.innerText = "Sprawdź";
+                    submitButton.onclick = () => {
+                        checkTextAnswer();
+                    };
+
+                    answersEl.appendChild(inputField);
+                    answersEl.appendChild(submitButton);
+                } else {
+                    currentQuestion.answers.forEach((answer, index) => {
+                        const button = document.createElement("button");
+                        button.innerText = answer;
+                        button.onclick = () => checkAnswer(button, index);
+                        answersEl.appendChild(button);
+                    });
+                }
+            }
+
+            loadQuestion();
+        </script>
+</body>
+
+</html>
